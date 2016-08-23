@@ -2,77 +2,133 @@
 <html>
     <head>
         <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="format-detection" content="telephone=no">
         <meta name="msapplication-tap-highlight" content="no">
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
         <title>QRCode Reader APP</title>
+
+        <!-- Bootstrap -->
+        <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <!-- my CSS -->
+        <link href="css/index.css" rel="stylesheet">
     </head>
     <body>
 
-        <div data-role="page" id="home">
+        <div id="home">
             <div data-role="header">
                 <h1>Home</h1>
             </div>
 
             <div data-role="main" class="ui-content">
                 <p>
-                    <a target="_blank" href="javascript:scan();" style="text-decoration: none"><button type="button">Scan</button></a>
-                    <a target="_blank" href="#display" style="text-decoration: none"><button type="button">Display Scanned Data</button></a>
+                    <a target="_blank" href="javascript:scan();" style="text-decoration: none"><button type="button" class="btn btn-success">Scan</button></a>
+                    <a target="_blank" href="#display" style="text-decoration: none"><button type="button" class="btn btn-primary">refresh</button></a>
+                    <button type="button" class="btn btn-primary" onclick="raw_data();">Raw</button>
+                    <button type="button" class="btn btn-danger" onclick="clear_data();">Delete Data</button>
                 </p>
             </div>
         </div>
 
         <div data-role="page" id="display">
             <div data-role="header">
-                <a target="_blank" href="#home" class="ui-btn ui-icon-home ui-btn-icon-left">Home</a>
                 <h1>Display</h1>
             </div>
 
             <div data-role="main" class="ui-content">
-                <table data-role="table" data-mode="column" id="allTable" class="ui-responsive table-stroke">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Value</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+              <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active"><a href="#qr_code" aria-controls="qr_code" role="tab" data-toggle="tab">QR_CODE</a></li>
+                <li role="presentation"><a href="#ean_13" aria-controls="ean_13" role="tab" data-toggle="tab">EAN_13</a></li>
+                <li role="presentation"><a href="#altro" aria-controls="altro" role="tab" data-toggle="tab">Altri codici</a></li>
+              </ul>
+
+              <!-- Tab panes -->
+              <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="qr_code">
+                  <table class="table table-striped">
+                      <thead>
+                          <tr>
+                              <th>Name</th>
+                              <th>Value</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                      </tbody>
+                  </table>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="ean_13">
+                  <table class="table table-striped">
+                      <thead>
+                          <tr>
+                              <th>Name</th>
+                              <th>Value</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                      </tbody>
+                  </table>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="altro">
+                  <table class="table table-striped">
+                      <thead>
+                          <tr>
+                              <th>Name</th>
+                              <th>Value</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                      </tbody>
+                  </table>
+                </div>
+              </div>
+
+
             </div>
+
+            <div id="raw">
+
+            </div>
+
         </div>
 
         <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-        <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
         <script type="text/javascript" src="cordova.js"></script>
         <script>
             function scan()
             {
-              alert('prima');
+                alert('scan');
                 cordova.plugins.barcodeScanner.scan(
                     function (result) {
                         if(!result.cancelled)
                         {
-                            if(result.format == "QR_CODE")
-                            {
-                                navigator.notification.prompt("Please enter name of data",  function(input){
-                                    var name = input.input1;
-                                    var value = result.text;
+                            navigator.notification.prompt("Inserisci un titolo",  function(input){
+                                var name = input.input1;
+                                var value = result.text;
 
-                                    var data = localStorage.getItem("LocalData");
-                                    console.log(data);
-                                    data = JSON.parse(data);
-                                    data[data.length] = [name, value];
+                                var data = localStorage.getItem("LocalData");
+                                console.log(data);
+                                alert("Prima di salvare-> "+data);
+                                data = JSON.parse(data);
 
-                                    localStorage.setItem("LocalData", JSON.stringify(data));
+                                // QR_CODE
+                                if(result.format == "QR_CODE")
+                                  data['QR_CODE'][data['QR_CODE'].length] = [name, value];
+                                // EAN_13
+                                else if(result.format == "EAN_13"){
+                                  alert('ean 13');
+                                  data['EAN_13'][data['EAN_13'].length] = [name, value];
+                                  alert('dato creato pronto per esser salvato');
+                                }
+                                // ALTRO
+                                else
+                                  data['ALTRO'][data['ALTRO'].length] = [name, value];
 
-                                    alert("Done");
-                                });
-                            }
-                            else if(result.format == "CODABAR"){
-                              alert("Barcode!!!");
-                            }
-                        }
+                                alert("Done-> "+JSON.stringify(data));
+
+                                localStorage.setItem("LocalData", JSON.stringify(data));
+
+                            });
+                          }
                     },
                     function (error) {
                         alert("Scanning failed: " + error);
@@ -80,23 +136,69 @@
                );
             }
 
-            $(document).on("pagebeforeshow", "#display", function() {
-                $("table#allTable tbody").empty();
+// funzioneper cancellare i dati raccolti
+            function clear_data(){
+
+              function onConfirm(buttonIndex) {
+                  if(buttonIndex==1){
+                    // cancello i dati salvati nell'oggetto localStorage
+                    localStorage.removeItem("LocalData");
+                    // sbianco la parte html della tabella
+                    $("#qr_code table tbody").empty();
+                    $("#ean_13 table tbody").empty();
+                    $("#ean_altro table tbody").empty();
+                  }
+              }
+
+              navigator.notification.confirm(
+                  'Vuoi cancellare tutti i dati?', // message
+                   onConfirm,            // callback to invoke with index of button pressed
+                  'Elimina',           // title
+                  ['Elimina','Annulla']     // buttonLabels
+              );
+
+            }
+
+             $(document).ready(function() {
+                $("#qr_code table tbody").empty();
+                $("#ean_13 table tbody").empty();
+                $("#ean_altro table tbody").empty();
+                $("#raw").empty();
 
                 var data = localStorage.getItem("LocalData");
-                console.log(data);
                 data = JSON.parse(data);
 
-                var html = "";
+                alert(data['EAN_13'].length);
+                var html_qr="";
+                var html_ean="";
+                var html_altro="";
 
-                for(var count = 0; count < data.length; count++)
+                for(var count = 0; count < data['QR_CODE'].length; count++)
                 {
-                    html = html + "<tr><td>" + data[count][0] + "</td><td><a href='javascript:openURL(\"" + data[count][1] + "\")'>" + data[count][1] + "</a></td></tr>";
+                    alert(data['QR_CODE'][count][1]);
+                    html_qr = html_qr + "<tr><td>" + data['QR_CODE'][count][0] + "</td><td>" + data['QR_CODE'][count][1] + "</td></tr>";
+                }
+                for(var count = 0; count < data['EAN_13'].length; count++)
+                {
+                    alert(data['EAN_13'][count][0]);
+                    html_ean = html_ean + "<tr><td>" + data['EAN_13'][count][0] + "</td><td>" + data['EAN_13'][count][1] + "</td></tr>";
+                }
+                for(var count = 0; count < data['ALTRO'].length; count++)
+                {
+                    html_altro = html_altro + "<tr><td>" + data['ALTRO'][count][0] + "</td><td>" + data['ALTRO'][count][1] + "</td></tr>";
                 }
 
-                $("table#allTable tbody").append(html).closest("table#allTable").table("refresh").trigger("create");
+                alert(html_ean);
+                $("#qr_code table tbody").append(html_qr);
+                $("#ean_13 table tbody").append(html_ean);
+                $("#ean_altro table tbody").append(html_altro);
 
             });
+
+            function raw_data(){
+                var data = 'Raw data: '+localStorage.getItem("LocalData");
+                $('#raw').append(data);
+            }
 
             function openURL(url)
             {
@@ -106,10 +208,15 @@
             //initialize
             if(localStorage.getItem("LocalData") == null)
             {
-                var data = [];
+                var data = {
+                  QR_CODE:[],
+                  EAN_13:[],
+                  ALTRO:[]
+                };
                 data = JSON.stringify(data);
                 localStorage.setItem("LocalData", data);
             }
         </script>
+        <script src="bootstrap/js/bootstrap.min.js"></script>
     </body>
 </html>
