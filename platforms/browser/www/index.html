@@ -99,8 +99,7 @@
                 alert('scan');
                 cordova.plugins.barcodeScanner.scan(
                     function (result) {
-                        if(!result.cancelled)
-                        {
+
                             navigator.notification.prompt("Inserisci un titolo",  function(input){
                                 var name = input.input1;
                                 var value = result.text;
@@ -128,7 +127,7 @@
                                 localStorage.setItem("LocalData", JSON.stringify(data));
 
                             });
-                          }
+
                     },
                     function (error) {
                         alert("Scanning failed: " + error);
