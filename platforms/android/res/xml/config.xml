@@ -21,6 +21,7 @@
         Apache Cordova Team
     </author>
     <content src="index.html" />
+    <icon src="img/qr_logo.png" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
@@ -30,4 +31,5 @@
     <allow-intent href="geo:*" />
     <allow-intent href="market:*" />
     <preference name="loglevel" value="DEBUG" />
+    <preference name="android-build-tool" value="gradle" />
 </widget>
