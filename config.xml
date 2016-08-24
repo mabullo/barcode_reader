@@ -11,8 +11,7 @@
     <plugin name="cordova-plugin-whitelist" version="1" />
     <plugin name="net.roughshod.plugins.barcodescanner" spec="3.0.0" source="pgb" />
     <!-- <plugin name="com.developersanddesigners.phonegapdialogs" spec="1.1.1" source="pgb" />-->
-    <plugin name="cordova-plugin-dialogs" source="npm"/>
-    <preference name="android-build-tool" value="gradle" />
+    <plugin name="cordova-plugin-dialogs" source="npm" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
