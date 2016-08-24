@@ -8,7 +8,7 @@
         Apache Cordova Team
     </author>
     <content src="index.html" />
-    <plugin name="com.phonegap.plugins.barcodescanner" source="pgb" spec="2.2.0" />
+    <plugin name="com.phonegap.plugins.barcodescanner" spec="2.2.0" source="pgb" />
     <plugin name="cordova-plugin-whitelist" spec="1.2.2" />
     <!-- <preference name="android-build-tool" value="gradle" /> -->
     <access origin="*" />
