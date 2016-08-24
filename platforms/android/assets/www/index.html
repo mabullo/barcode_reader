@@ -23,7 +23,7 @@
             <div data-role="main" class="ui-content">
                 <p>
                     <a target="_blank" href="javascript:scan();" style="text-decoration: none"><button type="button" class="btn btn-success">Scan</button></a>
-                    <a target="_blank" href="#display" style="text-decoration: none"><button type="button" class="btn btn-primary">refresh</button></a>
+                    <a target="_blank" href="#display" style="text-decoration: none"><button id="refresh" type="button" class="btn btn-primary">refresh</button></a>
                     <button type="button" class="btn btn-primary" onclick="raw_data();">Raw</button>
                     <button type="button" class="btn btn-danger" onclick="clear_data();">Delete Data</button>
                 </p>
@@ -96,17 +96,15 @@
         <script>
             function scan()
             {
-                alert('scan');
                 cordova.plugins.barcodeScanner.scan(
                     function (result) {
 
-                            navigator.notification.prompt("Inserisci un titolo",  function(input){
+                              navigator.notification.prompt("Inserisci un titolo",  function(input){
                                 var name = input.input1;
                                 var value = result.text;
 
                                 var data = localStorage.getItem("LocalData");
                                 console.log(data);
-                                alert("Prima di salvare-> "+data);
                                 data = JSON.parse(data);
 
                                 // QR_CODE
@@ -114,15 +112,15 @@
                                   data['QR_CODE'][data['QR_CODE'].length] = [name, value];
                                 // EAN_13
                                 else if(result.format == "EAN_13"){
-                                  alert('ean 13');
+
                                   data['EAN_13'][data['EAN_13'].length] = [name, value];
-                                  alert('dato creato pronto per esser salvato');
+
                                 }
                                 // ALTRO
                                 else
                                   data['ALTRO'][data['ALTRO'].length] = [name, value];
 
-                                alert("Done-> "+JSON.stringify(data));
+                                alert("Dato salvato");
 
                                 localStorage.setItem("LocalData", JSON.stringify(data));
 
@@ -146,6 +144,7 @@
                     $("#qr_code table tbody").empty();
                     $("#ean_13 table tbody").empty();
                     $("#ean_altro table tbody").empty();
+                    $("#refresh").click();
                   }
               }
 
@@ -167,21 +166,18 @@
                 var data = localStorage.getItem("LocalData");
                 data = JSON.parse(data);
 
-                alert(data['EAN_13'].length);
                 var html_qr="";
                 var html_ean="";
                 var html_altro="";
 
                 for(var count = 0; count < data['QR_CODE'].length; count++)
                 {
-                    alert(data['QR_CODE'][count][1]);
-
-
+                    //alert(data['QR_CODE'][count][1]);
                     html_qr = html_qr + "<tr><td>" + data['QR_CODE'][count][0] + "</td><td>" + data['QR_CODE'][count][1] + "</td></tr>";
                 }
                 for(var count = 0; count < data['EAN_13'].length; count++)
                 {
-                    alert(data['EAN_13'][count][0]);
+                  //  alert(data['EAN_13'][count][0]);
                     html_ean = html_ean + "<tr><td>" + data['EAN_13'][count][0] + "</td><td>" + data['EAN_13'][count][1] + "</td></tr>";
                 }
                 for(var count = 0; count < data['ALTRO'].length; count++)
@@ -189,7 +185,6 @@
                     html_altro = html_altro + "<tr><td>" + data['ALTRO'][count][0] + "</td><td>" + data['ALTRO'][count][1] + "</td></tr>";
                 }
 
-                alert(html_ean);
                 $("#qr_code table tbody").append(html_qr);
                 $("#ean_13 table tbody").append(html_ean);
                 $("#ean_altro table tbody").append(html_altro);
